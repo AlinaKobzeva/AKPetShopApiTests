@@ -95,3 +95,38 @@ class TestPet:
             assert response_json['category'] == payload["category"], "category питомца не совпадает с ожидаемым"
             assert response_json['photoUrls'] == payload["photoUrls"], "photoUrls питомца не совпадает с ожидаемым"
             assert response_json['tags'] == payload["tags"], "tags питомца не совпадает с ожидаемым"
+
+
+    @allure.title("Получение информации о питомце по id")
+    def test_get_pet_by_id(self,create_pet):
+        with allure.step("Получение id созданного питомца"):
+            pet_id = create_pet["id"]
+
+        with allure.step("Отправка запроса на получение информации о питомце по Id"):
+            response = requests.get(url=f"{BASE_URL}/pet/{pet_id}")
+
+        with allure.step("Проверка статуса ответа и данных питомца"):
+            assert response.status_code == 200
+            assert response.json() ["id"] == pet_id
+
+    @allure.title("Обновление информации о питомце")
+    def test_updated_pet(self, create_pet):
+
+        with allure.step("Подготовка обновленных данных"):
+            pet_id = create_pet.get("id")
+            new_payload = {
+                "id":  pet_id,
+                "name": "Buddy Updated",
+                "status": "sold"
+            }
+        with allure.step("Отправка запроса на обновление питомца"):
+           response=requests.put(f"{BASE_URL}/pet/{pet_id}", json=new_payload)
+           assert response.status_code == 200, f"Ошибка обновления питомца: статус-код {response.status_code}"
+
+        with allure.step("Проверка наличия обновленных данных"):
+            response_get = requests.get(f"{BASE_URL}/pet/{pet_id}")
+            assert response_get.status_code == 200, f"Ошибка получения информации о питомце: статус-код {response_get.status_code}"
+
+            data = response_get.json()
+            assert data["name"] == "Buddy Updated", f"Имя питомца не обновилось: {data['name']} вместо Buddy Updated"
+            assert data["status"] == "sold", f"Статус питомца не обновился: {data['status']} вместо sold"
