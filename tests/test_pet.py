@@ -120,7 +120,7 @@ class TestPet:
                 "status": "sold"
             }
         with allure.step("Отправка запроса на обновление питомца"):
-           response=requests.put(f"{BASE_URL}/pet/{pet_id}", json=new_payload)
+           response=requests.put(f"{BASE_URL}/pet/", json=new_payload)
            assert response.status_code == 200, f"Ошибка обновления питомца: статус-код {response.status_code}"
 
         with allure.step("Проверка наличия обновленных данных"):
