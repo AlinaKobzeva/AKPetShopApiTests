@@ -100,7 +100,7 @@ class TestPet:
     @allure.title("Получение информации о питомце по id")
     def test_get_pet_by_id(self,create_pet):
         with allure.step("Получение id созданного питомца"):
-            pet_id = create_pet["id"]
+            pet_id = create_pet
 
         with allure.step("Отправка запроса на получение информации о питомце по Id"):
             response = requests.get(url=f"{BASE_URL}/pet/{pet_id}")
@@ -113,7 +113,7 @@ class TestPet:
     def test_updated_pet(self, create_pet):
 
         with allure.step("Подготовка обновленных данных"):
-            pet_id = create_pet.get("id")
+            pet_id = create_pet
             new_payload = {
                 "id":  pet_id,
                 "name": "Buddy Updated",
@@ -130,3 +130,15 @@ class TestPet:
             data = response_get.json()
             assert data["name"] == "Buddy Updated", f"Имя питомца не обновилось: {data['name']} вместо Buddy Updated"
             assert data["status"] == "sold", f"Статус питомца не обновился: {data['status']} вместо sold"
+
+    @allure.title("Удаление питомца по ID")
+    def test_create_and_delete_pet(self, create_pet):
+        with allure.step("Получение id созданного питомца"):
+            pet_id = create_pet
+        with allure.step("Удаление питомца"):
+            delete_response = requests.delete(f"{BASE_URL}/pet/{pet_id}")
+            assert delete_response.status_code == 200
+
+        with allure.step("Проверка удаления питомца"):
+            get_response = requests.get(f"{BASE_URL}/pet/{pet_id}")
+            assert get_response.status_code == 404
