@@ -2,6 +2,10 @@ import allure
 import pytest
 import requests
 import jsonschema
+from .shemas.store_schema import STORE_SCHEMA
+
+
+from tests.shemas.store_schema import STORE_SCHEMA
 
 BASE_URL = "http://5.181.109.28:9090/api/v3"
 
@@ -54,10 +58,9 @@ class TestStore:
     def test_get_store_inventory(self):
         with allure.step("Отправка запроса на получение информации об инвенторе"):
             response = requests.get(url=f"{BASE_URL}/store/inventory")
+            response_json = response.json()
             assert response.status_code == 200, ("Код ответа  совпал с ожидаемым")
-
-            expected_data = {"approved": 57, "delivered": 50}
-            assert response.json() == expected_data, f"Ожидалось: {expected_data}, получено: {response.json()}"
+            jsonschema.validate(response_json, STORE_SCHEMA)
 
 
 
