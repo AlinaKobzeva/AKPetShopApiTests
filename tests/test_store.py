@@ -2,10 +2,7 @@ import allure
 import pytest
 import requests
 import jsonschema
-from .shemas.store_schema import STORE_SCHEMA
-
-
-from tests.shemas.store_schema import STORE_SCHEMA
+from tests.shemas.store_schema import STORE_SCHEMA, ORDER_SCHEMA
 
 BASE_URL = "http://5.181.109.28:9090/api/v3"
 
@@ -23,9 +20,11 @@ class TestStore:
             }
         with allure.step("Отправка запроса на создание заказа"):
             response = requests.post(f"{BASE_URL}/store/order", json=payload)
+            response_json = response.json()
+        with allure.step("Проверка статуса ответа и валидация Json-схемы"):
             assert response.status_code == 200, f'Ожидался код статуса 200, но получен {response.status_code}'
-            with allure.step('Проверка содержимого ответа'):
-                response.json()
+            jsonschema.validate(response_json, ORDER_SCHEMA)
+
 
     @allure.title("Получение информации о заказе по ID")
     def test_get_store_order_id(self):
